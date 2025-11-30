@@ -13,7 +13,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />
   },
   {
-    element: <ProtectedRoute />, // Rutas protegidas
+    element: <ProtectedRoute />, 
     children: [
       { path: '/home', element: <Home /> },
       { path: '/reports', element: <Reports /> }

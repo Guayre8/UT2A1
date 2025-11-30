@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, TextField, Typography, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { login } from '../store/authSlice';
+import { login as loginAction } from '../store/authSlice';
 import type { AppDispatch } from '../store/store';
 
-//Componente de Login
 const Login: React.FC = () => {
   const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
@@ -13,28 +12,46 @@ const Login: React.FC = () => {
   const [tipo, setTipo] = useState<'success' | 'error' | null>(null);
 
   const navigate = useNavigate();
-  const dispatch: AppDispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
-  //Simulamos un usuario con su contraseña
-  const bduser = 'guayre';
-  const bdpasswd = '1234';
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (user === bduser && password === bdpasswd) {
-      dispatch(login({ nombre: user, rol: 'administrador' }));
-      setMensaje('Acceso correcto');
-      setTipo('success');
+    const params = new URLSearchParams({
+      user: user,
+      password: password,
+    });
 
-      setTimeout(() => {
-        navigate('/home'); 
-      }, 300); //El timeout se lo deje para que se vea el mensaje de exito
-    } else {
-      setMensaje('Usuario o contraseña incorrectos');
+    try {
+      const resp = await fetch(`http://localhost:3030/login?${params.toString()}`);
+      const json = await resp.json();
+
+      if (json.data && json.data.length > 0) {
+        const usuario = json.data[0];
+
+        dispatch(
+          loginAction({
+            nombre: usuario.username, // backend devuelve username
+            rol: usuario.rol,
+          })
+        );
+
+        setMensaje('Acceso correcto');
+        setTipo('success');
+
+        setTimeout(() => {
+          navigate('/home');
+        }, 300);
+      } else {
+        setMensaje('Usuario o contraseña incorrectos');
+        setTipo('error');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setMensaje('Error de conexión con el servidor');
       setTipo('error');
     }
-  };
+  }
 
   return (
     <Box
@@ -50,7 +67,7 @@ const Login: React.FC = () => {
         p: 3,
         borderRadius: 2,
         boxShadow: 3,
-        bgcolor: 'background.paper'
+        bgcolor: 'background.paper',
       }}
     >
       <Typography variant="h4" textAlign="center" gutterBottom>
