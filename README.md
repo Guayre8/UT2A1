@@ -2,11 +2,15 @@
 
 **Alumno:** Espino Méndez Guayre
 
-## Descripción
-Proyecto frontend creado con Vite + React + TypeScript y MUI. Implementa la página de "Login" y una guía de estilos basada en MUI Theme.
-
 ## Cómo ejecutar
 ```bash
 cd frontend
 npm install
 npm run dev
+```
+
+**En otra Terminal**
+```bash
+cd backend
+npm install
+npm start
